@@ -1,0 +1,32 @@
+version: '3'
+services:
+  db:
+    container_name: db
+    image: postgres:10
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: bookstore
+      POSTGRES_USER: bookstore
+      POSTGRES_PASSWORD: bookstore
+
+  web:
+    container_name: web
+    image: beeete2/php71
+    volumes:
+      - ./src:/app
+    ports:
+      - "80:8000"
+    depends_on:
+      - db
+    working_dir: /app
+    command: php artisan serve --host=0.0.0.0
+
+  scmemaspy:
+    container_name: scmemaspy
+    image: schemaspy/schemaspy:snapshot
+    volumes:
+      - ./build/schemaspy:/output
+    depends_on:
+      - db
+    command: -t pgsql -host db -db bookstore -u bookstore -p bookstore
